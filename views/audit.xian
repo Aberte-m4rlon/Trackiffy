@@ -1,0 +1,31 @@
+{{> head}}
+<body class="bg-gray-50 font-poppins">
+  <div class="max-w-7xl mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6 text-red-700">Audit Trail</h1>
+
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+      <table class="min-w-full border-collapse">
+        <thead class="bg-red-100 text-gray-800 uppercase text-sm font-semibold">
+          <tr>
+            <th class="p-3 text-left">Action</th>
+            <th class="p-3 text-left">User</th>
+            <th class="p-3 text-left">Project</th>
+            <th class="p-3 text-left">Description</th>
+            <th class="p-3 text-left">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each logs}}
+          <tr class="border-b hover:bg-red-50">
+            <td class="p-3">{{action}}</td>
+            <td class="p-3">{{user_name}}</td>
+            <td class="p-3">{{project_title}}</td>
+            <td class="p-3">{{description}}</td>
+            <td class="p-3">{{created_at}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>

@@ -24,12 +24,63 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     */
-import { DataTypes } from "sequelize";
-import { sequelize } from "./db.js";
+import { Sequelize, DataTypes } from "sequelize";
+import db from "./db.js";
 
-export const User = sequelize.define("User", {
-  name: { type: DataTypes.STRING, allowNull: false },
-  email: { type: DataTypes.STRING, allowNull: false },
-  password: { type: DataTypes.STRING, allowNull: false }
-});
-export { sequelize }; 
+export const sequelize = db;
+
+export const User = sequelize.define(
+  "User",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    uuid: {
+      type: DataTypes.STRING(36),
+      allowNull: true,
+    },
+    display_name: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      unique: true,
+    },
+    password_hash: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    role: {
+      type: DataTypes.ENUM(
+        "captain",
+        "treasurer",
+        "project_officer",
+        "auditor",
+        "sysadmin",
+        "citizen"
+      ),
+      allowNull: false,
+      defaultValue: "citizen",
+    },
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+    },
+    meta: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  },
+  {
+    tableName: "users",
+    timestamps: false,
+  }
+);

@@ -1,5 +1,4 @@
-
-      /*
+/*
     MIT License
     
     Copyright (c) 2025 Christian I. Cabrera || XianFire Framework
@@ -22,39 +21,114 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
-    */
-    
+*/
+
+
 import bcrypt from "bcrypt";
 import { User, sequelize } from "../models/userModel.js";
-await sequelize.sync();
 
-export const loginPage = (req, res) => res.render("login", { title: "Login" });
-export const registerPage = (req, res) => res.render("register", { title: "Register" });
-export const forgotPasswordPage = (req, res) => res.render("forgotpassword", { title: "Forgot Password" });
+try {
+  await sequelize.sync();
+  console.log("✅ User model synchronized successfully.");
+} catch (err) {
+  console.error("❌ Sequelize sync failed:", err);
+}
+
+export const loginPage = (req, res) => {
+  res.render("login", { title: "Login" });
+};
+
+export const registerPage = (req, res) => {
+  res.render("register", { title: "Register" });
+};
+
+export const forgotPasswordPage = (req, res) => {
+  res.render("forgotpassword", { title: "Forgot Password" });
+};
+
 export const dashboardPage = (req, res) => {
   if (!req.session.userId) return res.redirect("/login");
-  res.render("dashboard", { title: "Dashboard" });
+  res.render("dashboard", { 
+    title: "Dashboard",
+    userName: req.session.userName,
+    userRole: req.session.userRole
+  });
 };
 
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ where: { email } });
-  if (!user) return res.send("User not found");
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.send("Incorrect password");
-  req.session.userId = user.id;
-  res.redirect("/dashboard");
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.render("login", { title: "Login", error: "Please fill all fields." });
+    }
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.render("login", { title: "Login", error: "User not found." });
+    }
+
+    // 🔹 Handle empty passwords for dummy users
+    if (!user.password_hash) {
+      console.warn(`⚠️ User ${email} has no password set. Allowing dummy login for dev.`);
+      req.session.userId = user.id;
+      req.session.userName = user.display_name;
+      req.session.userRole = user.role || "citizen"; // ✅ role added here
+      return res.redirect("/dashboard");
+    }
+
+    // 🔹 Compare hashed password
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match) {
+      return res.render("login", { title: "Login", error: "Incorrect password." });
+    }
+
+    // 🔹 Successful login
+    req.session.userId = user.id;
+    req.session.userName = user.display_name;
+    req.session.userRole = user.role || "citizen"; // ✅ store role in session
+    console.log(`✅ Login success: ${email} [Role: ${req.session.userRole}]`);
+    res.redirect("/dashboard");
+  } catch (err) {
+    console.error("❌ Login error:", err);
+    res.status(500).send("Server error during login.");
+  }
 };
 
 export const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, email, password: hashed });
-  req.session.userId = user.id;
-  res.redirect("/dashboard");
+  try {
+    const { name, email, password, role } = req.body;
+    if (!name || !email || !password) {
+      return res.render("register", { title: "Register", error: "All fields required." });
+    }
+
+    const existing = await User.findOne({ where: { email } });
+    if (existing) {
+      return res.render("register", { title: "Register", error: "Email already exists." });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      display_name: name,
+      email,
+      password_hash: hashed,
+      role: role || "citizen", // ✅ default role
+      is_active: 1,
+    });
+
+    req.session.userId = newUser.id;
+    req.session.userName = newUser.display_name;
+    req.session.userRole = newUser.role;
+    res.redirect("/dashboard");
+  } catch (err) {
+    console.error("❌ Registration error:", err);
+    res.status(500).send("Error during registration.");
+  }
 };
 
 export const logoutUser = (req, res) => {
-  req.session.destroy();
-  res.redirect("/login");
+  req.session.destroy((err) => {
+    if (err) console.error("❌ Session destroy error:", err);
+    res.redirect("/login");
+  });
 };

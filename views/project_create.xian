@@ -1,0 +1,42 @@
+{{> head}}
+<body class="bg-gray-50 font-poppins">
+  <div class="max-w-3xl mx-auto mt-8 bg-white shadow p-6 rounded-lg">
+    <h1 class="text-xl font-semibold mb-4 text-blue-700">Create New Project</h1>
+
+    <form method="POST" action="/projects/create" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-600">Title</label>
+        <input type="text" name="title" required class="w-full border rounded p-2">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-600">Summary</label>
+        <input type="text" name="summary" class="w-full border rounded p-2">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-600">Description</label>
+        <textarea name="description" rows="3" class="w-full border rounded p-2"></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-600">Start Date</label>
+          <input type="date" name="start_date" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600">End Date</label>
+          <input type="date" name="end_date" class="w-full border rounded p-2">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-600">Estimated Budget</label>
+        <input type="number" name="estimated_budget" step="0.01" class="w-full border rounded p-2">
+      </div>
+
+      <button type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Save Project</button>
+    </form>
+  </div>
+</body>

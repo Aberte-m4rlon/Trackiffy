@@ -1,0 +1,46 @@
+{{> head}}
+<body class="bg-gray-50 font-poppins">
+  <div class="max-w-7xl mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6 text-blue-700">Barangay Projects</h1>
+
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+      <table class="min-w-full border-collapse">
+        <thead class="bg-blue-100 text-gray-800 uppercase text-sm font-semibold">
+          <tr>
+            <th class="p-3 text-left">Title</th>
+            <th class="p-3 text-left">Status</th>
+            <th class="p-3 text-left">Start Date</th>
+            <th class="p-3 text-left">End Date</th>
+            <th class="p-3 text-right">Estimated Budget</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each projects}}
+          <tr class="border-b hover:bg-blue-50">
+            <td class="p-3">{{title}}</td>
+            <td class="p-3">
+              <span class="px-2 py-1 rounded text-xs font-medium 
+                {{#ifEquals status 'approved'}}bg-green-100 text-green-700{{else ifEquals status 'ongoing'}}bg-yellow-100 text-yellow-700{{else}}bg-gray-100 text-gray-600{{/ifEquals}}">
+                {{status}}
+              </span>
+            </td>
+            <td class="p-3">{{start_date}}</td>
+            <td class="p-3">{{end_date}}</td>
+            <td class="p-3 text-right">₱{{estimated_budget}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+        <td class="p-3 text-right">
+  {{#ifEquals status 'submitted'}}
+    <form method="POST" action="/projects/{{id}}/approve" style="display:inline;">
+      <button type="submit" class="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600">
+        Approve
+      </button>
+    </form>
+  {{/ifEquals}}
+</td>
+
+      </table>
+    </div>
+  </div>
+</body>

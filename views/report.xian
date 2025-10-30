@@ -1,0 +1,69 @@
+{{> head}}
+<body class="bg-gray-50 font-poppins">
+  <div class="max-w-7xl mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6 text-indigo-700">{{title}}</h1>
+    <div class="flex justify-end mb-4 space-x-2">
+  <a href="?export=csv" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">Export CSV</a>
+  <a href="?export=pdf" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">Export PDF</a>
+</div>
+
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+      <table class="min-w-full border-collapse">
+        <thead class="bg-indigo-100 text-gray-800 uppercase text-sm font-semibold">
+          <tr>
+            {{#ifEquals title "Budget Utilization"}}
+              <th class="p-3 text-left">Project</th>
+              <th class="p-3 text-right">Allocated</th>
+              <th class="p-3 text-right">Spent</th>
+              <th class="p-3 text-right">Utilization (%)</th>
+            {{else ifEquals title "Disbursement Ledger"}}
+              <th class="p-3 text-left">Project</th>
+              <th class="p-3 text-right">Amount</th>
+              <th class="p-3 text-left">Purpose</th>
+              <th class="p-3 text-left">Date Released</th>
+              <th class="p-3 text-left">Approved By</th>
+            {{else ifEquals title "Project Status"}}
+              <th class="p-3 text-left">Project</th>
+              <th class="p-3 text-left">Status</th>
+              <th class="p-3 text-left">Start</th>
+              <th class="p-3 text-left">End</th>
+            {{else}}
+              <th class="p-3 text-left">Project</th>
+              <th class="p-3 text-right">Allocated</th>
+              <th class="p-3 text-right">Spent</th>
+              <th class="p-3 text-right">Balance</th>
+            {{/ifEquals}}
+          </tr>
+        </thead>
+        <tbody>
+          {{#each data}}
+          <tr class="border-b hover:bg-indigo-50">
+            {{#ifEquals ../title "Budget Utilization"}}
+              <td class="p-3">{{project}}</td>
+              <td class="p-3 text-right">₱{{allocated_amount}}</td>
+              <td class="p-3 text-right">₱{{spent_amount}}</td>
+              <td class="p-3 text-right">{{utilization}}%</td>
+            {{else ifEquals ../title "Disbursement Ledger"}}
+              <td class="p-3">{{project}}</td>
+              <td class="p-3 text-right">₱{{amount}}</td>
+              <td class="p-3">{{purpose}}</td>
+              <td class="p-3">{{date_released}}</td>
+              <td class="p-3">{{approved_by}}</td>
+            {{else ifEquals ../title "Project Status"}}
+              <td class="p-3">{{title}}</td>
+              <td class="p-3">{{status}}</td>
+              <td class="p-3">{{start_date}}</td>
+              <td class="p-3">{{end_date}}</td>
+            {{else}}
+              <td class="p-3">{{project}}</td>
+              <td class="p-3 text-right">₱{{allocated_amount}}</td>
+              <td class="p-3 text-right">₱{{spent_amount}}</td>
+              <td class="p-3 text-right">₱{{balance}}</td>
+            {{/ifEquals}}
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>

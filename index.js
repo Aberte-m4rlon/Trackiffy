@@ -21,13 +21,13 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
-    */
-    
+*/
+
 import express from "express";
 import path from "path";
 import session from "express-session";
 import router from "./routes/index.js";
-import fs from 'fs';
+import fs from "fs";
 import hbs from "hbs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -38,20 +38,36 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ Register Handlebars Helpers (Fixes Missing helper: "ifEquals")
+hbs.registerHelper("ifEquals", function (a, b, options) {
+  return a == b ? options.fn(this) : options.inverse(this);
+});
+hbs.registerHelper("subtract", function (a, b) {
+  return (parseFloat(a) - parseFloat(b)).toFixed(2);
+});
+hbs.registerHelper("divide", function (a, b, multiplier = 1) {
+  if (b == 0) return "0";
+  return ((parseFloat(a) / parseFloat(b)) * multiplier).toFixed(2);
+});
+
+// Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 
-app.use(session({
-  secret: "xianfire-secret-key",
-  resave: false,
-  saveUninitialized: false
-}));
+app.use(
+  session({
+    secret: "xianfire-secret-key",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
+// Custom .xian engine (kept untouched)
 app.engine("xian", async (filePath, options, callback) => {
   try {
-     const originalPartialsDir = hbs.partialsDir;
-    hbs.partialsDir = path.join(__dirname, 'views');
+    const originalPartialsDir = hbs.partialsDir;
+    hbs.partialsDir = path.join(__dirname, "views");
 
     const result = await new Promise((resolve, reject) => {
       hbs.__express(filePath, options, (err, html) => {
@@ -69,6 +85,7 @@ app.engine("xian", async (filePath, options, callback) => {
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "xian");
+
 const partialsDir = path.join(__dirname, "views/partials");
 fs.readdir(partialsDir, (err, files) => {
   if (err) {
@@ -76,27 +93,29 @@ fs.readdir(partialsDir, (err, files) => {
     return;
   }
 
-   files
-    .filter(file => file.endsWith('.xian'))
-    .forEach(file => {
-      const partialName = file.replace('.xian', ''); 
+  files
+    .filter((file) => file.endsWith(".xian"))
+    .forEach((file) => {
+      const partialName = file.replace(".xian", "");
       const fullPath = path.join(partialsDir, file);
 
-      fs.readFile(fullPath, 'utf8', (err, content) => {
+      fs.readFile(fullPath, "utf8", (err, content) => {
         if (err) {
           console.error(`❌ Failed to read partial: ${file}`, err);
           return;
         }
         hbs.registerPartial(partialName, content);
-        
       });
     });
 });
 
+// Routes
 app.use("/", router);
 
 export default app;
 
 if (!process.env.ELECTRON) {
-  app.listen(PORT, () => console.log(`🔥 XianFire running at http://localhost:${PORT}`));
+  app.listen(PORT, () =>
+    console.log(`🔥 XianFire running at http://localhost:${PORT}`)
+  );
 }

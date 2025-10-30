@@ -28,11 +28,28 @@ import express from "express";
 import { homePage } from "../controllers/homeController.js";
 const router = express.Router();
 router.get("/", homePage);
+import { approveProject } from "../controllers/projectController.js";
+
+import projectRoutes from "./projectRoutes.js";
+import budgetRoutes from "./budgetRoutes.js";
+import reportRoutes from "./reportRoutes.js";
+import disbursementRoutes from "./disbursementRoutes.js";
+import { requireRole } from "../middleware/authRole.js";
+import auditRoutes from "./auditRoutes.js";
+router.use("/audit", auditRoutes);
+
+
+router.post("/:id/approve", requireRole(["captain"]), approveProject);
+
+router.use("/projects", projectRoutes);
+router.use("/budgets", budgetRoutes);
+router.use("/reports", reportRoutes);
+router.use("/disbursements", disbursementRoutes);
 
 import { loginPage, registerPage, forgotPasswordPage, dashboardPage, loginUser, registerUser, logoutUser } from "../controllers/authController.js";
 
 router.get("/login", loginPage);
-router.post("/login", loginUser);
+router.post("/auth/login", loginUser);
 router.get("/register", registerPage);
 router.post("/register", registerUser);
 router.get("/forgot-password", forgotPasswordPage);

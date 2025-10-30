@@ -1,0 +1,31 @@
+{{> head}}
+<body class="bg-gray-50 font-poppins">
+  <div class="max-w-7xl mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6 text-green-700">Project Budgets</h1>
+
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+      <table class="min-w-full border-collapse">
+        <thead class="bg-green-100 text-gray-800 uppercase text-sm font-semibold">
+          <tr>
+            <th class="p-3 text-left">Project</th>
+            <th class="p-3 text-right">Allocated</th>
+            <th class="p-3 text-right">Spent</th>
+            <th class="p-3 text-right">Remaining</th>
+            <th class="p-3 text-right">Utilization (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each budgets}}
+          <tr class="border-b hover:bg-green-50">
+            <td class="p-3">{{project_title}}</td>
+            <td class="p-3 text-right">₱{{allocated_amount}}</td>
+            <td class="p-3 text-right">₱{{spent_amount}}</td>
+            <td class="p-3 text-right">₱{{subtract allocated_amount spent_amount}}</td>
+            <td class="p-3 text-right">{{divide spent_amount allocated_amount 100}}%</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
