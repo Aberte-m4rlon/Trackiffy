@@ -1,15 +1,12 @@
 import express from "express";
-import {
-  budgetUtilization,
-  disbursementLedger,
-  projectStatus,
-  statementOfAppropriations,
-} from "../controllers/reportController.js";
+import { getAllReports, createReport } from "../controllers/reportController.js";
 
 const router = express.Router();
-router.get("/budget-utilization", budgetUtilization);
-router.get("/disbursement-ledger", disbursementLedger);
-router.get("/project-status", projectStatus);
-router.get("/appropriations", statementOfAppropriations);
+
+// ✅ Default route for /reports
+router.get("/", getAllReports); // Handles GET /reports
+
+// Optional: Add a route for creating reports if needed
+router.post("/", createReport);
 
 export default router;

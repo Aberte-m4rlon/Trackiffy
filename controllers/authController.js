@@ -23,7 +23,6 @@
     SOFTWARE.
 */
 
-
 import bcrypt from "bcrypt";
 import { User, sequelize } from "../models/userModel.js";
 
@@ -34,6 +33,7 @@ try {
   console.error("❌ Sequelize sync failed:", err);
 }
 
+/* ---------- PAGE RENDERS ---------- */
 export const loginPage = (req, res) => {
   res.render("login", { title: "Login" });
 };
@@ -46,55 +46,136 @@ export const forgotPasswordPage = (req, res) => {
   res.render("forgotpassword", { title: "Forgot Password" });
 };
 
-export const dashboardPage = (req, res) => {
-  if (!req.session.userId) return res.redirect("/login");
-  res.render("dashboard", { 
-    title: "Dashboard",
-    userName: req.session.userName,
-    userRole: req.session.userRole
-  });
+/* ---------- DASHBOARD ---------- */
+export const dashboardPage = async (req, res) => {
+  const { userId } = req.params;
+
+  // ✅ Check if logged in
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+
+  // ✅ Prevent access to other users' dashboards
+  if (parseInt(userId) !== parseInt(req.session.userId)) {
+    console.warn(`🚫 Unauthorized access attempt: ${req.session.userId} tried to access /dashboard/${userId}`);
+    return res.redirect(`/dashboard/${req.session.userId}`);
+  }
+
+  try {
+    const user = await User.findByPk(req.session.userId);
+    if (!user) {
+      req.session.destroy(() => res.redirect("/login"));
+      return;
+    }
+
+    // ✅ Determine which dashboard to render based on role
+    let dashboardView = "dashboard"; // default fallback
+
+    switch (user.role) {
+      case "captain":
+        dashboardView = "dashboard-captain";
+        break;
+      case "treasurer":
+        dashboardView = "dashboard-treasurer";
+        break;
+      case "project_officer":
+        dashboardView = "dashboard-project_officer";
+        break;
+      case "auditor":
+        dashboardView = "dashboard-auditor";
+        break;
+      case "citizen":
+        dashboardView = "dashboard-citizen";
+        break;
+      default:
+        dashboardView = "dashboard";
+        break;
+    }
+
+    res.render(dashboardView, {
+      title: "Dashboard",
+      userName: user.display_name,
+      userRole: user.role,
+      userId: user.id
+    });
+  } catch (err) {
+    console.error("❌ Dashboard load error:", err);
+    res.status(500).send("Error loading dashboard.");
+  }
 };
 
+/* ---------- LOGIN ---------- */
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
+      if (req.headers["content-type"]?.includes("application/json")) {
+        return res.json({ success: false, error: "Please fill all fields." });
+      }
       return res.render("login", { title: "Login", error: "Please fill all fields." });
     }
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
+      if (req.headers["content-type"]?.includes("application/json")) {
+        return res.json({ success: false, error: "User not found." });
+      }
       return res.render("login", { title: "Login", error: "User not found." });
     }
 
-    // 🔹 Handle empty passwords for dummy users
+    // Allow dummy accounts (no password) for testing
     if (!user.password_hash) {
-      console.warn(`⚠️ User ${email} has no password set. Allowing dummy login for dev.`);
       req.session.userId = user.id;
       req.session.userName = user.display_name;
-      req.session.userRole = user.role || "citizen"; // ✅ role added here
-      return res.redirect("/dashboard");
+      req.session.userRole = user.role || "citizen";
+
+      if (req.headers["content-type"]?.includes("application/json")) {
+        return res.json({ success: true, userId: user.id, role: user.role });
+      }
+
+      return res.redirect(`/dashboard/${user.id}`);
     }
 
-    // 🔹 Compare hashed password
+    // Compare password hash
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
+      if (req.headers["content-type"]?.includes("application/json")) {
+        return res.json({ success: false, error: "Incorrect password." });
+      }
       return res.render("login", { title: "Login", error: "Incorrect password." });
     }
 
-    // 🔹 Successful login
+    // ✅ Success: Store session info
     req.session.userId = user.id;
     req.session.userName = user.display_name;
-    req.session.userRole = user.role || "citizen"; // ✅ store role in session
+    req.session.userRole = user.role || "citizen";
+
     console.log(`✅ Login success: ${email} [Role: ${req.session.userRole}]`);
-    res.redirect("/dashboard");
+
+    // ✅ Send JSON response if AJAX, else redirect normally
+    if (req.headers["content-type"]?.includes("application/json")) {
+      return res.json({
+        success: true,
+        userId: user.id,
+        role: user.role || "citizen"
+      });
+    }
+
+    res.redirect(`/dashboard/${user.id}`);
   } catch (err) {
     console.error("❌ Login error:", err);
+
+    if (req.headers["content-type"]?.includes("application/json")) {
+      return res.status(500).json({ success: false, error: "Server error during login." });
+    }
+
     res.status(500).send("Server error during login.");
   }
 };
 
+
+/* ---------- REGISTER ---------- */
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -112,20 +193,22 @@ export const registerUser = async (req, res) => {
       display_name: name,
       email,
       password_hash: hashed,
-      role: role || "citizen", // ✅ default role
+      role: role || "citizen",
       is_active: 1,
     });
 
     req.session.userId = newUser.id;
     req.session.userName = newUser.display_name;
     req.session.userRole = newUser.role;
-    res.redirect("/dashboard");
+
+    res.redirect(`/dashboard/${newUser.id}`);
   } catch (err) {
     console.error("❌ Registration error:", err);
     res.status(500).send("Error during registration.");
   }
 };
 
+/* ---------- LOGOUT ---------- */
 export const logoutUser = (req, res) => {
   req.session.destroy((err) => {
     if (err) console.error("❌ Session destroy error:", err);

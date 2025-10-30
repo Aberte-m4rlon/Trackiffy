@@ -1,0 +1,71 @@
+{{> head}}
+<body class="min-h-screen bg-gradient-to-br from-gray-50 via-slate-100 to-blue-100 text-gray-800 flex">
+
+  {{> sidebar}}
+
+  <main class="flex-1 p-8">
+    <h2 class="text-2xl font-serif font-semibold mb-8">Welcome, Auditor {{userName}}</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="p-6 bg-white/40 backdrop-blur-md rounded-3xl shadow-xl border border-white/30">
+        <div class="flex items-center gap-3 mb-3">
+          <i data-lucide="file-search" class="w-8 h-8 text-blue-600"></i>
+          <h3 class="text-lg font-semibold">Audit Reports</h3>
+        </div>
+        <p class="text-4xl font-bold text-blue-700">{{stats.totalReports}}</p>
+      </div>
+
+      <div class="p-6 bg-white/40 backdrop-blur-md rounded-3xl shadow-xl border border-white/30">
+        <div class="flex items-center gap-3 mb-3">
+          <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600"></i>
+          <h3 class="text-lg font-semibold">Flagged Issues</h3>
+        </div>
+        <p class="text-4xl font-bold text-red-700">{{stats.issues}}</p>
+      </div>
+
+      <div class="p-6 bg-white/40 backdrop-blur-md rounded-3xl shadow-xl border border-white/30">
+        <div class="flex items-center gap-3 mb-3">
+          <i data-lucide="check-circle-2" class="w-8 h-8 text-green-600"></i>
+          <h3 class="text-lg font-semibold">Resolved Findings</h3>
+        </div>
+        <p class="text-4xl font-bold text-green-700">{{stats.resolved}}</p>
+      </div>
+    </div>
+
+    <div class="bg-white/40 backdrop-blur-md border border-white/30 rounded-3xl p-6 shadow-xl">
+      <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <i data-lucide="clipboard-list" class="w-5 h-5 text-blue-600"></i>
+        Recent Audit Activities
+      </h3>
+      <table class="w-full text-left border-separate border-spacing-y-2">
+        <thead>
+          <tr class="text-sm text-gray-600">
+            <th class="px-4 py-2">Date</th>
+            <th class="px-4 py-2">Project</th>
+            <th class="px-4 py-2">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each audits}}
+          <tr class="bg-white/50 hover:bg-white/70 transition rounded-xl">
+            <td class="px-4 py-3 text-sm text-gray-500">{{this.date}}</td>
+            <td class="px-4 py-3 font-medium">{{this.project}}</td>
+            <td class="px-4 py-3">
+              <span class="px-3 py-1 rounded-full text-sm 
+                {{#if (eq this.status 'Resolved')}}bg-green-100 text-green-700
+                {{else if (eq this.status 'Pending')}}bg-yellow-100 text-yellow-700
+                {{else}}bg-red-100 text-red-700{{/if}}">
+                {{this.status}}
+              </span>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    {{> footer}}
+  </main>
+
+  <script> lucide.createIcons(); </script>
+</body>

@@ -1,0 +1,79 @@
+{{> head}}
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-100 text-gray-800 flex">
+
+
+  <main class="flex-1 p-8">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-serif font-semibold">Welcome, Captain {{userName}}</h2>
+      <div class="flex items-center gap-4">
+        <button class="p-3 rounded-full bg-white/40 backdrop-blur-md border border-white/40 shadow-md hover:scale-105 transition">
+          <i data-lucide="bell" class="w-5 h-5 text-blue-600"></i>
+        </button>
+        <img src="/images/user.jpg" alt="Profile" class="w-10 h-10 rounded-full border-2 border-white/60 shadow-md">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="p-6 rounded-3xl shadow-xl backdrop-blur-md bg-white/40 border border-white/30 hover:scale-[1.02] transition">
+        <div class="flex items-center justify-center mb-3">
+          <i data-lucide="folder-kanban" class="w-8 h-8 text-blue-600"></i>
+        </div>
+        <h3 class="text-lg font-semibold">Project Requests</h3>
+        <p class="text-4xl font-bold text-blue-700 mt-2">{{stats.pendingProjects}}</p>
+      </div>
+
+      <div class="p-6 rounded-3xl shadow-xl backdrop-blur-md bg-white/40 border border-white/30 hover:scale-[1.02] transition">
+        <div class="flex items-center justify-center mb-3">
+          <i data-lucide="check-circle" class="w-8 h-8 text-green-600"></i>
+        </div>
+        <h3 class="text-lg font-semibold">Approved Projects</h3>
+        <p class="text-4xl font-bold text-green-700 mt-2">{{stats.approvedProjects}}</p>
+      </div>
+
+      <div class="p-6 rounded-3xl shadow-xl backdrop-blur-md bg-white/40 border border-white/30 hover:scale-[1.02] transition">
+        <div class="flex items-center justify-center mb-3">
+          <i data-lucide="wallet" class="w-8 h-8 text-yellow-600"></i>
+        </div>
+        <h3 class="text-lg font-semibold">Total Budget Allocated</h3>
+        <p class="text-4xl font-bold text-yellow-700 mt-2">₱{{stats.totalBudget}}</p>
+      </div>
+    </div>
+
+    <div class="bg-white/40 backdrop-blur-md border border-white/30 rounded-3xl p-6 shadow-xl">
+      <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+        Recent Project Requests
+      </h3>
+      <table class="w-full text-left border-separate border-spacing-y-2">
+        <thead>
+          <tr class="text-sm text-gray-600">
+            <th class="px-4 py-2">Project</th>
+            <th class="px-4 py-2">Status</th>
+            <th class="px-4 py-2">Requested By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each recentProjects}}
+          <tr class="bg-white/50 hover:bg-white/70 transition rounded-xl">
+            <td class="px-4 py-3 font-medium">{{this.name}}</td>
+            <td class="px-4 py-3">
+              <span class="px-3 py-1 rounded-full text-sm 
+                {{#if (eq this.status 'Approved')}}bg-green-100 text-green-700
+                {{else if (eq this.status 'Pending')}}bg-yellow-100 text-yellow-700
+                {{else}}bg-red-100 text-red-700{{/if}}">
+                {{this.status}}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-sm text-gray-500">{{this.officer}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{> footer}}
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>

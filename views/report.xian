@@ -1,5 +1,13 @@
 {{> head}}
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-100 text-gray-800 flex">
+
+  {{> sidebar}}
+
+  <main class="flex-1 p-8">
+    <!-- Topbar and rest of your content -->
+
 <body class="bg-gray-50 font-poppins">
+
   <div class="max-w-7xl mx-auto py-8">
     <h1 class="text-2xl font-bold mb-6 text-indigo-700">{{title}}</h1>
     <div class="flex justify-end mb-4 space-x-2">

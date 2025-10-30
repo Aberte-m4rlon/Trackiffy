@@ -33,3 +33,19 @@ export const statementOfAppropriations = async (req, res) => {
 
   res.render("report.xian", { title: "Statement of Appropriations", data });
 };
+// controllers/reportController.js
+export const getAllReports = (req, res) => {
+  try {
+    res.render("report.xian", {
+      title: "Reports",
+      user: req.user || null
+    });
+  } catch (error) {
+    console.error("Error loading reports page:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+export const createReport = (req, res) => {
+  res.send("Report created (placeholder)");
+};

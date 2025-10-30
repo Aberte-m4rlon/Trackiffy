@@ -9,3 +9,9 @@ export const viewUtilization = async (req, res) => {
   const data = await Budget.getUtilization();
   res.render("report.xian", { data });
 };
+export const getBudgetSummary = (req, res) => {
+  res.render("budget.xian", {
+    title: "Budget Summary",
+    user: req.user || null
+  });
+};

@@ -85,6 +85,7 @@ app.engine("xian", async (filePath, options, callback) => {
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "xian");
+hbs.registerPartials(path.join(__dirname, 'views/partials'));
 
 const partialsDir = path.join(__dirname, "views/partials");
 fs.readdir(partialsDir, (err, files) => {
